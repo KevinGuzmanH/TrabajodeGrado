@@ -1,17 +1,21 @@
-# Etapa 1: Construcción
+# Etapa 1: Construir la aplicación Angular
 FROM node:20 AS build
 
 WORKDIR /app
-COPY . .
+
+COPY package.json yarn.lock ./
 RUN yarn install
-RUN yarn build
+
+COPY . .
+RUN yarn build --prod
 
 # Etapa 2: Servidor Nginx para producción
 FROM nginx:alpine
+
 COPY --from=build /app/dist/angular-movie-app-v2 /usr/share/nginx/html
 
-# Copia el archivo de configuración de Nginx
-COPY nginx.conf /etc/nginx/nginx.conf
+# Copia tu configuración personalizada de Nginx si es necesario
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
